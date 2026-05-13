@@ -1,5 +1,6 @@
 package org.example.view;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -18,24 +19,35 @@ public class Register extends Stage {
     private PasswordField tfPassword = new PasswordField();
     private Button btnPotvrdi = new Button("Potvrdi");
     private Button btnOdustani = new Button("Odustani");
+    private  Label lblStatus = new Label("");
 
     public Register() {
-        HBox hb = new HBox(10);
+        setTitle("Registracija ");
+        tfIme.setPromptText("Unesite korisnicko ime ... ");
+        tfPassword.setPromptText("Unesite lozinku  ... ");
+        HBox hbGlavni = new HBox(10);
         VBox vbLevi = new VBox(10);
-        vbLevi.getChildren().addAll(lbIme, lbPassword,btnPotvrdi);
+        vbLevi.getChildren().addAll(lbIme, lbPassword);
         VBox vbDesni = new VBox(10);
-        vbDesni.getChildren().addAll(tfIme, tfPassword,btnOdustani);
-        hb.getChildren().addAll(vbLevi, vbDesni);
+        vbDesni.getChildren().addAll(tfIme, tfPassword);
+        hbGlavni.getChildren().addAll(vbLevi, vbDesni);
         vbLevi.setAlignment(Pos.CENTER);
         vbDesni.setAlignment(Pos.CENTER);
-        hb.setAlignment(Pos.CENTER);
-        btnPotvrdi.setOnAction(new AddUserControler(tfIme,tfPassword));
+        hbGlavni.setAlignment(Pos.CENTER);
+        HBox hbDugmad = new HBox(10, btnPotvrdi, btnOdustani);
+        hbDugmad.setAlignment(Pos.CENTER);
+        lblStatus.setWrapText(true);
+        lblStatus.setMaxWidth(400);
+        VBox root = new VBox(20, hbGlavni, hbDugmad, lblStatus);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(30));
+        btnPotvrdi.setOnAction(new AddUserControler(tfIme, tfPassword, lblStatus));
         btnOdustani.setOnAction(e -> {
            this.close();
         });
 
 
-        Scene scene = new Scene(hb,800,600);
+        Scene scene = new Scene(root,800,600);
         setScene(scene);
 
 

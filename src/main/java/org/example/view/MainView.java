@@ -13,14 +13,15 @@ public class MainView extends Stage {
     Button btnSignUp = new Button("Sign Up");
 
     public MainView() {
-        HBox root = new HBox(btnLogIn, btnSignUp);
+        HBox root = new HBox(20,btnLogIn, btnSignUp);
         root.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(root,800,600);
         setScene(scene);
 
         btnLogIn.setOnAction(e -> {
-
+            LogIn logIn = new LogIn();
+            logIn.show();
         });
 
         btnSignUp.setOnAction(e -> {
