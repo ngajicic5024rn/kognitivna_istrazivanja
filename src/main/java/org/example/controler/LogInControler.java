@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import org.example.UserFileService;
+import org.example.view.GlavniProzor;
 
 import java.io.IOException;
 
@@ -49,7 +50,9 @@ public class LogInControler implements EventHandler<ActionEvent> {
                 return;
             }
             setSuccess("Dobrodošli, " + username.trim() + "! Uspešno ste se prijavili.");
-            // Ovde možeš otvoriti glavni prozor aplikacije
+            GlavniProzor glavni = new GlavniProzor();
+            glavni.show();
+
         } catch (IOException e) {
             setError("Greška pri čitanju korisničkih podataka!");
         }

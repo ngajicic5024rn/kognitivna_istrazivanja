@@ -8,6 +8,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import org.example.Config;
 import org.example.UserFileService;
+import org.example.view.GlavniProzor;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -59,6 +60,8 @@ public class AddUserControler implements EventHandler<ActionEvent> {
             setSuccess("Korisnik '" + username.trim() + "' je uspešno registrovan!");
             tfIme.clear();
             tfPassword.clear();
+            GlavniProzor glavni = new GlavniProzor();
+            glavni.show();
         } catch (IOException e) {
             setError("Greška pri čuvanju korisnika u fajl!");
         }
