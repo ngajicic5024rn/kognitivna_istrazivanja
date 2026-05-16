@@ -31,7 +31,7 @@ public class PregledControler implements ChangeListener<Toggle> {
     @Override
     public void changed(ObservableValue<? extends Toggle> observableValue, Toggle oldValue, Toggle newValue) {
         if (newValue == rbPlanirani) {
-        runQuery(Config.getConnection(), "planirano");
+            runQuery(Config.getConnection(), "planirano");
         }
         if (newValue == rbZavrseni) {
             runQuery(Config.getConnection(), "zavrseno");
@@ -40,12 +40,13 @@ public class PregledControler implements ChangeListener<Toggle> {
     }
 
     private void runQuery(Connection connection, String status ) {
-        String query = "select e.naziv as eksperiment, e.tip, i.datum, l.naziv as laboratorija,\n" +
-                "i.status\n" +
+        String query = "select e.naziv as eksperiment, e.id, e.tip, i.datum, l.naziv as laboratorija,\n" +
+                "s.naziv as status\n" +
                 "from izvodjenje i\n" +
                 "join eksperiment e on i.id_eksperiment = e.id\n" +
                 "join laboratorija l on i.id_laboratorija = l.id\n" +
-                "where i.status = ?";
+                "join status s on i.id_status = s.id_status\n" +
+                "where s.naziv = ?";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, status );
@@ -59,6 +60,8 @@ public class PregledControler implements ChangeListener<Toggle> {
 
                 LocalDate datum = resultSet.getDate("datum").toLocalDate();
 
+                Integer id = resultSet.getInt("id");
+
                 String laboratorija = resultSet.getString("laboratorija");
 
                 String statusEksperimenta = resultSet.getString("status");
@@ -68,7 +71,8 @@ public class PregledControler implements ChangeListener<Toggle> {
                         laboratorija,
                         statusEksperimenta,
                         datum,
-                        tip
+                        tip,
+                        id
                 );
 
                 eksperimenti.add(eksperiment);

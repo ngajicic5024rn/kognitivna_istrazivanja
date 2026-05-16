@@ -8,13 +8,23 @@ public class Eksperiment {
     private String status;
     private LocalDate datum;
     private String tip;
+    private  int idEksperimenta;
 
-    public Eksperiment(String nazivEksperimenta, String nazivLaboratorije, String status, LocalDate datum, String tip) {
+    public Eksperiment(String nazivEksperimenta, String nazivLaboratorije, String status, LocalDate datum, String tip, int idEksperimenta) {
         this.nazivEksperimenta = nazivEksperimenta;
         this.nazivLaboratorije = nazivLaboratorije;
         this.status = status;
         this.datum = datum;
         this.tip = tip;
+        this.idEksperimenta = idEksperimenta;
+    }
+
+    public int getIdEksperimenta() {
+        return idEksperimenta;
+    }
+
+    public void setIdEksperimenta(int idEksperimenta) {
+        this.idEksperimenta = idEksperimenta;
     }
 
     public String getNazivEksperimenta() {
