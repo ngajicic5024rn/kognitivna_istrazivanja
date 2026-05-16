@@ -21,9 +21,23 @@ public class AddUserControler implements EventHandler<ActionEvent> {
     private PasswordField tfPassword ;
     private Label lblStatus;
 
-    public AddUserControler(TextField tfIme, PasswordField tfPassword, Label lblStatus) {
+    private TextField tfImeiPrezime;
+    private TextField tfEmail;
+    private TextField tfInstitucija;
+    private TextField tfNaucnoZvanje ;
+    private TextField tfOblastSpecifikacije;
+
+
+
+
+    public AddUserControler(TextField tfIme, PasswordField tfPassword, TextField tfImeiPrezime, TextField tfEmail, TextField tfInstitucija, TextField tfNaucnoZvanje, TextField tfOblastSpecifikacije, Label lblStatus) {
         this.tfIme = tfIme;
         this.tfPassword = tfPassword;
+        this.tfImeiPrezime = tfImeiPrezime;
+        this.tfEmail = tfEmail;
+        this.tfInstitucija = tfInstitucija;
+        this.tfNaucnoZvanje = tfNaucnoZvanje;
+        this.tfOblastSpecifikacije = tfOblastSpecifikacije;
         this.lblStatus = lblStatus;
     }
 
@@ -43,14 +57,7 @@ public class AddUserControler implements EventHandler<ActionEvent> {
             return;
         }
 
-        /*
-        this.runQuery(Config.getConnection(), username.trim(), password);
-        //this.contactDtoTableView.setItems(FXCollections.observableArrayList(
-           //     ContactDto.readAll(Config.getConnection())));
-        this.tfIme.clear();
-        this.tfPassword.clear();
 
-         */
         try {
             if (UserFileService.userExists(username.trim())) {
                 setError("Greška: Korisnik '" + username.trim() + "' već postoji!");
@@ -58,10 +65,21 @@ public class AddUserControler implements EventHandler<ActionEvent> {
             }
             UserFileService.saveUser(username.trim(), password);
             setSuccess("Korisnik '" + username.trim() + "' je uspešno registrovan!");
+            boolean uspesno = this.runQuery(
+                    Config.getConnection(),
+                    tfIme.getText(),
+                    tfImeiPrezime.getText(),
+                    tfEmail.getText(),
+                    tfInstitucija.getText(),
+                    tfNaucnoZvanje.getText(),
+                    tfOblastSpecifikacije.getText()
+            );
             tfIme.clear();
             tfPassword.clear();
-            GlavniProzor glavni = new GlavniProzor();
-            glavni.show();
+            if (uspesno) {
+                GlavniProzor glavni = new GlavniProzor();
+                glavni.show();
+            }
         } catch (IOException e) {
             setError("Greška pri čuvanju korisnika u fajl!");
         }
@@ -77,17 +95,39 @@ public class AddUserControler implements EventHandler<ActionEvent> {
         lblStatus.setText(msg);
     }
 
-    /*
-    private void runQuery(Connection connection, String firstName, String password) {
-        String query = "INSERT INTO korisnik(username, password) VALUES (?, ?)";
+    private boolean runQuery(
+            Connection connection,
+            String username,
+            String imeIPrezime,
+            String email,
+            String institucija,
+            String naucnoZvanje,
+            String oblastSpecifikacije
+    ) {
+
+        String query =
+                "INSERT INTO istrazivac \n" +
+                        "(username, ime_i_prezime, email, institucija, naucno_zvanje, oblast_spec) \n" +
+                        "VALUES (?, ?, ?, ?, ?, ?)";
+
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, firstName);
-            preparedStatement.setString(2, password);
-            preparedStatement.execute();
+
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(query);
+
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, imeIPrezime);
+            preparedStatement.setString(3, email);
+            preparedStatement.setString(4, institucija);
+            preparedStatement.setString(5, naucnoZvanje);
+            preparedStatement.setString(6, oblastSpecifikacije);
+
+            preparedStatement.executeUpdate();
+
+            return true;
+
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
-    */
 }
