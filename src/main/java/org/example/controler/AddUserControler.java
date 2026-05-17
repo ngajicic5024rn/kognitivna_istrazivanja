@@ -8,11 +8,13 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import org.example.Config;
 import org.example.UserFileService;
+import org.example.model.UlogovaniIstrazivac;
 import org.example.view.GlavniProzor;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class AddUserControler implements EventHandler<ActionEvent> {
@@ -77,6 +79,8 @@ public class AddUserControler implements EventHandler<ActionEvent> {
             tfIme.clear();
             tfPassword.clear();
             if (uspesno) {
+                int id = runQuerygetidIstrazivaca(Config.getConnection(), tfIme.getText());
+                GlavniProzor.ulogovaniIstrazivac = new UlogovaniIstrazivac(tfImeiPrezime.getText(),tfIme.getText(),tfEmail.getText(), tfInstitucija.getText(), tfNaucnoZvanje.getText(), tfOblastSpecifikacije.getText(),id);
                 GlavniProzor glavni = new GlavniProzor();
                 glavni.show();
             }
@@ -128,6 +132,23 @@ public class AddUserControler implements EventHandler<ActionEvent> {
 
         } catch (SQLException e) {
             return false;
+        }
+    }
+    private int runQuerygetidIstrazivaca(Connection connection, String username) {
+        String query = "SELECT id FROM istrazivac where username = ?";
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("id");
+            }
+            return 0;
+
+
+        } catch (SQLException e) {
+            return 0;
         }
     }
 }

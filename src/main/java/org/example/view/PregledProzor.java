@@ -9,6 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.Config;
+import org.example.controler.BrisanjeSesijeControler;
 import org.example.controler.IzmenaStatusaControler;
 import org.example.controler.PregledControler;
 import org.example.model.Eksperiment;
@@ -28,6 +29,7 @@ public class PregledProzor extends Stage {
     ToggleGroup grupaStatus = new ToggleGroup();
     private Button btnIzmenaStatusa = new Button("Izmeni status");
     private  ComboBox<Status> cbStatusi = new ComboBox<>();
+    private Button btnBrisanjeSesije = new Button("Brisanje sesije");
 
 
     public PregledProzor() {
@@ -59,7 +61,7 @@ public class PregledProzor extends Stage {
         HBox hb = new HBox(10);
         hb.getChildren().addAll(rbPlanirani, rbZavrseni);
         VBox vb = new VBox(10);
-        vb.getChildren().addAll(tvEksperimenti, hb,hbIzmena);
+        vb.getChildren().addAll(tvEksperimenti, hb,hbIzmena, btnBrisanjeSesije);
         Scene scene = new Scene(vb, 800, 600);
         setScene(scene);
         hb.setAlignment(Pos.CENTER);
@@ -67,6 +69,7 @@ public class PregledProzor extends Stage {
         grupaStatus.selectedToggleProperty().addListener(new PregledControler(tvEksperimenti, rbPlanirani ,rbZavrseni));
         rbPlanirani.setSelected(true);
         btnIzmenaStatusa.setOnAction( new IzmenaStatusaControler(cbStatusi,tvEksperimenti));
+        btnBrisanjeSesije.setOnAction(new BrisanjeSesijeControler(tvEksperimenti));
     }
 
     private void ucitajStatuse() {

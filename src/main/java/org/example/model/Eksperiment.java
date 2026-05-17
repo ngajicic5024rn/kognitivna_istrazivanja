@@ -9,14 +9,16 @@ public class Eksperiment {
     private LocalDate datum;
     private String tip;
     private  int idEksperimenta;
+    private int idIzvodjenja;
 
-    public Eksperiment(String nazivEksperimenta, String nazivLaboratorije, String status, LocalDate datum, String tip, int idEksperimenta) {
+    public Eksperiment(String nazivEksperimenta, String nazivLaboratorije, String status, LocalDate datum, String tip, int idEksperimenta, int idIzvodjenja) {
         this.nazivEksperimenta = nazivEksperimenta;
         this.nazivLaboratorije = nazivLaboratorije;
         this.status = status;
         this.datum = datum;
         this.tip = tip;
         this.idEksperimenta = idEksperimenta;
+        this.idIzvodjenja = idIzvodjenja;
     }
 
     public int getIdEksperimenta() {
@@ -41,6 +43,14 @@ public class Eksperiment {
 
     public void setNazivLaboratorije(String nazivLaboratorije) {
         this.nazivLaboratorije = nazivLaboratorije;
+    }
+
+    public int getIdIzvodjenja() {
+        return idIzvodjenja;
+    }
+
+    public void setIdIzvodjenja(int idIzvodjenja) {
+        this.idIzvodjenja = idIzvodjenja;
     }
 
     public String getStatus() {

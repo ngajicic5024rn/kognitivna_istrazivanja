@@ -6,10 +6,20 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import org.example.Config;
 import org.example.UserFileService;
+import org.example.model.Eksperiment;
+import org.example.model.UlogovaniIstrazivac;
 import org.example.view.GlavniProzor;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LogInControler implements EventHandler<ActionEvent> {
 
@@ -50,8 +60,12 @@ public class LogInControler implements EventHandler<ActionEvent> {
                 return;
             }
             setSuccess("Dobrodošli, " + username.trim() + "! Uspešno ste se prijavili.");
-            GlavniProzor glavni = new GlavniProzor();
-            glavni.show();
+            if (runQuery(Config.getConnection(), username)){
+                GlavniProzor glavni = new GlavniProzor();
+                glavni.show();
+
+            }
+
 
         } catch (IOException e) {
             setError("Greška pri čitanju korisničkih podataka!");
@@ -67,4 +81,34 @@ public class LogInControler implements EventHandler<ActionEvent> {
         lblError.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
         lblError.setText(msg);
     }
+
+    private boolean runQuery(Connection connection, String username ) {
+        String query = "select * from istrazivac where username = ?";
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                Integer id = resultSet.getInt("id");
+                String ime_i_prezime = resultSet.getString("ime_i_prezime");
+                String email = resultSet.getString("email");
+                String institucija = resultSet.getString("institucija");
+                String naucnoZvanje = resultSet.getString("naucno_zvanje");
+                String oblastSpec = resultSet.getString("oblast_spec");
+
+
+                GlavniProzor.ulogovaniIstrazivac = new UlogovaniIstrazivac(ime_i_prezime, username, email, institucija, naucnoZvanje, oblastSpec, id);
+                return true;
+            }
+
+        } catch (SQLException e) {
+            return false;
+        }
+        return false;
+    }
+
+
 }

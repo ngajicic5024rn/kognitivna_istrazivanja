@@ -5,10 +5,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import org.example.model.UlogovaniIstrazivac;
 
 public class GlavniProzor extends Stage {
     Button buttonPregled = new Button("Pregled");
     Button buttonBrisanje = new Button("Brisanje");
+
+    public static UlogovaniIstrazivac ulogovaniIstrazivac;
 
 
     public GlavniProzor() {

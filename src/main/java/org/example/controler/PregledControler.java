@@ -40,7 +40,7 @@ public class PregledControler implements ChangeListener<Toggle> {
     }
 
     private void runQuery(Connection connection, String status ) {
-        String query = "select e.naziv as eksperiment, e.id, e.tip, i.datum, l.naziv as laboratorija,\n" +
+        String query = "select e.naziv as eksperiment, e.id, e.tip, i.datum, l.naziv as laboratorija,i.id_izvodjenja,\n" +
                 "s.naziv as status\n" +
                 "from izvodjenje i\n" +
                 "join eksperiment e on i.id_eksperiment = e.id\n" +
@@ -62,6 +62,8 @@ public class PregledControler implements ChangeListener<Toggle> {
 
                 Integer id = resultSet.getInt("id");
 
+                Integer idIzvodjenje = resultSet.getInt("id_izvodjenja");
+
                 String laboratorija = resultSet.getString("laboratorija");
 
                 String statusEksperimenta = resultSet.getString("status");
@@ -72,7 +74,8 @@ public class PregledControler implements ChangeListener<Toggle> {
                         statusEksperimenta,
                         datum,
                         tip,
-                        id
+                        id,
+                        idIzvodjenje
                 );
 
                 eksperimenti.add(eksperiment);
