@@ -30,6 +30,7 @@ public class PregledProzor extends Stage {
     private Button btnIzmenaStatusa = new Button("Izmeni status");
     private  ComboBox<Status> cbStatusi = new ComboBox<>();
     private Button btnBrisanjeSesije = new Button("Brisanje sesije");
+    private Button btnPogled = new Button("Pogled");
 
 
     public PregledProzor() {
@@ -61,7 +62,7 @@ public class PregledProzor extends Stage {
         HBox hb = new HBox(10);
         hb.getChildren().addAll(rbPlanirani, rbZavrseni);
         VBox vb = new VBox(10);
-        vb.getChildren().addAll(tvEksperimenti, hb,hbIzmena, btnBrisanjeSesije);
+        vb.getChildren().addAll(tvEksperimenti, hb,hbIzmena, btnBrisanjeSesije, btnPogled);
         Scene scene = new Scene(vb, 800, 600);
         setScene(scene);
         hb.setAlignment(Pos.CENTER);
@@ -70,6 +71,11 @@ public class PregledProzor extends Stage {
         rbPlanirani.setSelected(true);
         btnIzmenaStatusa.setOnAction( new IzmenaStatusaControler(cbStatusi,tvEksperimenti));
         btnBrisanjeSesije.setOnAction(new BrisanjeSesijeControler(tvEksperimenti));
+        btnPogled.setOnAction(e-> {
+            PogledView pogledView = new PogledView();
+            pogledView.show();
+
+        });
     }
 
     private void ucitajStatuse() {

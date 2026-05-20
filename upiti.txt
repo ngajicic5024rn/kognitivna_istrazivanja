@@ -1,0 +1,13 @@
+Upit za kreiranje pogleda
+
+CREATE VIEW broj_izvodjenja_po_istrazivacu AS
+SELECT
+    i.ime_i_prezime,
+    COUNT(ui.id_izvodjenje) AS broj_izvodjenja
+FROM istrazivac i
+JOIN izvodjac iz
+ON i.id = iz.id_istrazivaca
+JOIN ucesce_izvodjaca ui
+ON iz.id = ui.id_izvodjac
+GROUP BY i.id, i.ime_i_prezime
+HAVING COUNT(ui.id_izvodjenje) >= 1;
