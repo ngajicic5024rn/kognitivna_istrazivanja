@@ -29,7 +29,10 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
         boolean isIzvodjac = runQueryIsIzvodjac(Config.getConnection(), selectedEksperiment.getIdIzvodjenja(), GlavniProzor.ulogovaniIstrazivac.getId());
         boolean isDizajner = runQueryIsDizajner(Config.getConnection(), selectedEksperiment.getIdIzvodjenja(), GlavniProzor.ulogovaniIstrazivac.getId());
         if (isIzvodjac || isDizajner ) {
-            System.out.println("Ucestvuje");
+            if(runQueryObrisiSesiju(Config.getConnection(),selectedEksperiment.getIdIzvodjenja())){
+                tvEksperimenti.getItems().remove(selectedEksperiment);
+                tvEksperimenti.refresh();
+            }
         }
         else{
             System.out.println("Ne ucestvuje");
@@ -44,6 +47,7 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
                 "ON ui.id_izvodjac = i.id\n" +
                 "WHERE ui.id_izvodjenje = ?\n" +
                 "AND i.id_istrazivaca = ?;";
+
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -82,6 +86,64 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
 
 
         } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    private boolean runQueryObrisiSesiju(Connection connection, int idIzvodjenja) {
+
+        try {
+
+            String selectQuery =
+                    "SELECT id_sesija FROM izvodjenje WHERE id_izvodjenja = ?";
+
+            PreparedStatement ps1 =
+                    connection.prepareStatement(selectQuery);
+
+            ps1.setInt(1, idIzvodjenja);
+
+            ResultSet rs = ps1.executeQuery();
+
+            if(!rs.next()) {
+                return false;
+            }
+
+            int idSesija = rs.getInt("id_sesija");
+
+            String deleteUcesce =
+                    "DELETE FROM ucesce_izvodjaca WHERE id_izvodjenje = ?";
+
+            PreparedStatement ps2 =
+                    connection.prepareStatement(deleteUcesce);
+
+            ps2.setInt(1, idIzvodjenja);
+
+            ps2.executeUpdate();
+
+            String deleteIzvodjenje =
+                    "DELETE FROM izvodjenje WHERE id_izvodjenja = ?";
+
+            PreparedStatement ps3 =
+                    connection.prepareStatement(deleteIzvodjenje);
+
+            ps3.setInt(1, idIzvodjenja);
+
+            ps3.executeUpdate();
+
+            String deleteSesija =
+                    "DELETE FROM sesija WHERE id = ?";
+
+            PreparedStatement ps4 =
+                    connection.prepareStatement(deleteSesija);
+
+            ps4.setInt(1, idSesija);
+
+            ps4.executeUpdate();
+
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
             return false;
         }
     }
