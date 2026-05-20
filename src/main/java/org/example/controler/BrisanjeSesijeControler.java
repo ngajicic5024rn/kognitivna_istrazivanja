@@ -18,6 +18,7 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
 
     public BrisanjeSesijeControler(TableView<Eksperiment> tvEksperimenti) {
         this.tvEksperimenti = tvEksperimenti;
+        kreirajProceduru(Config.getConnection());
     }
 
     @Override
@@ -29,7 +30,7 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
         boolean isIzvodjac = runQueryIsIzvodjac(Config.getConnection(), selectedEksperiment.getIdIzvodjenja(), GlavniProzor.ulogovaniIstrazivac.getId());
         boolean isDizajner = runQueryIsDizajner(Config.getConnection(), selectedEksperiment.getIdIzvodjenja(), GlavniProzor.ulogovaniIstrazivac.getId());
         if (isIzvodjac || isDizajner ) {
-            if(runQueryObrisiSesiju(Config.getConnection(),selectedEksperiment.getIdIzvodjenja())){
+            if(runQueryObrisiSesiju2(Config.getConnection(),selectedEksperiment.getIdIzvodjenja())){
                 tvEksperimenti.getItems().remove(selectedEksperiment);
                 tvEksperimenti.refresh();
             }
@@ -139,6 +140,53 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
             ps4.setInt(1, idSesija);
 
             ps4.executeUpdate();
+
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    private void kreirajProceduru(Connection connection) {
+
+        String query =
+                "CREATE PROCEDURE obrisi_sesiju_po_izvodjenju(IN p_id_izvodjenja INT) \n" +
+                        "BEGIN DECLARE v_id_sesija INT; \n" +
+                        "START TRANSACTION; \n" +
+                        "SELECT id_sesija INTO v_id_sesija FROM izvodjenje WHERE id_izvodjenja = p_id_izvodjenja; \n" +
+                        "DELETE FROM ucesce_izvodjaca WHERE id_izvodjenje = p_id_izvodjenja; \n" +
+                        "DELETE FROM izvodjenje WHERE id_izvodjenja = p_id_izvodjenja; \n" +
+                        "DELETE FROM sesija WHERE id = v_id_sesija; \n" +
+                        "COMMIT; \n" +
+                        "END";
+
+        try {
+
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(query);
+
+            preparedStatement.execute();
+
+            System.out.println("Procedura uspešno kreirana.");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private boolean runQueryObrisiSesiju2(Connection connection, int idIzvodjenja) {
+
+        String query = "CALL obrisi_sesiju_po_izvodjenju(?)";
+
+        try {
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(query);
+
+            preparedStatement.setInt(1, idIzvodjenja);
+
+            preparedStatement.executeUpdate();
 
             return true;
 
