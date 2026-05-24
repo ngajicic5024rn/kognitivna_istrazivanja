@@ -18,11 +18,11 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
 
     public BrisanjeSesijeControler(TableView<Eksperiment> tvEksperimenti) {
         this.tvEksperimenti = tvEksperimenti;
-        kreirajProceduru(Config.getConnection());
     }
 
     @Override
     public void handle(ActionEvent actionEvent) {
+        kreirajProceduru(Config.getConnection());
         Eksperiment selectedEksperiment = tvEksperimenti.getSelectionModel().getSelectedItem();
         if (selectedEksperiment == null) {
             return;

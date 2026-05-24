@@ -33,8 +33,10 @@ public class PregledProzor extends Stage {
     private Button btnBrisanjeSesije = new Button("Brisanje sesije");
     private Button btnPogled = new Button("Pogled");
     private Button btnBrojIzvodjenja = new Button("Broj Izvodjenja");
+    private Button btnProvera = new Button("Provera");
 
     private Label lbBrojIzvodjenja = new Label("Broj Izvodjenja");
+    private Label lbInfo = new Label("");
 
 
     public PregledProzor() {
@@ -66,7 +68,7 @@ public class PregledProzor extends Stage {
         HBox hb = new HBox(10);
         hb.getChildren().addAll(rbPlanirani, rbZavrseni);
         VBox vb = new VBox(10);
-        vb.getChildren().addAll(tvEksperimenti,lbBrojIzvodjenja, hb,hbIzmena, btnBrisanjeSesije, btnPogled, btnBrojIzvodjenja);
+        vb.getChildren().addAll(tvEksperimenti,lbBrojIzvodjenja, hb,hbIzmena, btnBrisanjeSesije, btnPogled, btnBrojIzvodjenja,btnProvera, lbInfo);
         Scene scene = new Scene(vb, 800, 600);
         setScene(scene);
         hb.setAlignment(Pos.CENTER);
@@ -88,6 +90,20 @@ public class PregledProzor extends Stage {
             kreirajFunkciju(Config.getConnection());
             int broj = brojIzvodjenjaEksperimenta(Config.getConnection(), eksperiment.getIdEksperimenta());
             lbBrojIzvodjenja.setText("Broj izvodjenja eksperimenta " + eksperiment.getNazivEksperimenta() + " je: " +  broj);
+        });
+        btnProvera.setOnAction(e-> {
+            Eksperiment eksperiment = tvEksperimenti.getSelectionModel().getSelectedItem();
+            if (eksperiment == null) {
+                return;
+            }
+            kreirajFunkcijuZaProveru(Config.getConnection());
+            boolean provera = proveriFunkciju(Config.getConnection(), eksperiment.getIdEksperimenta());
+            if (provera) {
+                lbInfo.setText("Eksperiment ima barem 1 izvodjenje");
+            }else {
+                lbInfo.setText("Eksperiment nema ni jedno izvodjenje");
+            }
+
         });
     }
 
@@ -112,11 +128,71 @@ public class PregledProzor extends Stage {
 
             preparedStatement.execute();
 
-            System.out.println("Procedura uspešno kreirana.");
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private void kreirajFunkcijuZaProveru(Connection connection) {
+        kreirajFunkciju(Config.getConnection());
+
+        String query =
+                "CREATE FUNCTION test_broj_izvodjenja_eksperimenta(p_id_eksperiment INT)\n" +
+                        "RETURNS BOOLEAN\n" +
+                        "DETERMINISTIC\n" +
+                        "BEGIN\n" +
+                        "    DECLARE broj INT;\n" +
+                        "\n" +
+                        "    SET broj = broj_izvodjenja_eksperimenta(p_id_eksperiment);\n" +
+                        "\n" +
+                        "    IF broj >= 1 THEN\n" +
+                        "        RETURN TRUE;\n" +
+                        "    ELSE\n" +
+                        "        RETURN FALSE;\n" +
+                        "    END IF;\n" +
+                        "END";
+
+        try {
+
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(query);
+
+            preparedStatement.execute();
+
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private boolean proveriFunkciju(Connection connection,int idEksperimenta) {
+
+        String query =
+                "SELECT test_broj_izvodjenja_eksperimenta(?) AS rezultat";
+
+        try {
+
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(query);
+
+            preparedStatement.setInt(1, idEksperimenta);
+
+            ResultSet resultSet =
+                    preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+
+                boolean rezultat = resultSet.getBoolean("rezultat");
+                return rezultat;
+
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return false;
     }
 
     private int brojIzvodjenjaEksperimenta(Connection connection,
