@@ -15,6 +15,7 @@ import org.example.controler.PregledControler;
 import org.example.model.Eksperiment;
 import org.example.model.Status;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,6 +32,9 @@ public class PregledProzor extends Stage {
     private  ComboBox<Status> cbStatusi = new ComboBox<>();
     private Button btnBrisanjeSesije = new Button("Brisanje sesije");
     private Button btnPogled = new Button("Pogled");
+    private Button btnBrojIzvodjenja = new Button("Broj Izvodjenja");
+
+    private Label lbBrojIzvodjenja = new Label("Broj Izvodjenja");
 
 
     public PregledProzor() {
@@ -62,7 +66,7 @@ public class PregledProzor extends Stage {
         HBox hb = new HBox(10);
         hb.getChildren().addAll(rbPlanirani, rbZavrseni);
         VBox vb = new VBox(10);
-        vb.getChildren().addAll(tvEksperimenti, hb,hbIzmena, btnBrisanjeSesije, btnPogled);
+        vb.getChildren().addAll(tvEksperimenti,lbBrojIzvodjenja, hb,hbIzmena, btnBrisanjeSesije, btnPogled, btnBrojIzvodjenja);
         Scene scene = new Scene(vb, 800, 600);
         setScene(scene);
         hb.setAlignment(Pos.CENTER);
@@ -76,6 +80,70 @@ public class PregledProzor extends Stage {
             pogledView.show();
 
         });
+        btnBrojIzvodjenja.setOnAction(e-> {
+            Eksperiment eksperiment = tvEksperimenti.getSelectionModel().getSelectedItem();
+            if (eksperiment == null) {
+                return;
+            }
+            kreirajFunkciju(Config.getConnection());
+            int broj = brojIzvodjenjaEksperimenta(Config.getConnection(), eksperiment.getIdEksperimenta());
+            lbBrojIzvodjenja.setText("Broj izvodjenja eksperimenta " + eksperiment.getNazivEksperimenta() + " je: " +  broj);
+        });
+    }
+
+    private void kreirajFunkciju(Connection connection) {
+
+        String query =
+                "CREATE FUNCTION broj_izvodjenja_eksperimenta(p_id_eksperiment INT) " +
+                        "RETURNS INT " +
+                        "DETERMINISTIC " +
+                        "BEGIN " +
+                        "DECLARE broj INT; " +
+                        "SELECT COUNT(*) INTO broj " +
+                        "FROM izvodjenje " +
+                        "WHERE id_eksperiment = p_id_eksperiment; " +
+                        "RETURN broj; " +
+                        "END";
+
+        try {
+
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(query);
+
+            preparedStatement.execute();
+
+            System.out.println("Procedura uspešno kreirana.");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private int brojIzvodjenjaEksperimenta(Connection connection,
+                                           int idEksperimenta) {
+
+        String query =
+                "SELECT broj_izvodjenja_eksperimenta(?) AS broj";
+
+        try {
+
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(query);
+
+            preparedStatement.setInt(1, idEksperimenta);
+
+            ResultSet resultSet =
+                    preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt("broj");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return 0;
     }
 
     private void ucitajStatuse() {
