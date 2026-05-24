@@ -9,6 +9,7 @@ import org.example.model.UlogovaniIstrazivac;
 
 public class GlavniProzor extends Stage {
     Button buttonPregled = new Button("Pregled");
+    Button buttonPregledLaboratorija = new Button("Pregled Laboratorija");
 
 
     public static UlogovaniIstrazivac ulogovaniIstrazivac;
@@ -17,13 +18,16 @@ public class GlavniProzor extends Stage {
     public GlavniProzor() {
         HBox hb = new HBox(10);
         hb.setAlignment(Pos.CENTER);
-        hb.getChildren().addAll(buttonPregled);
+        hb.getChildren().addAll(buttonPregled,buttonPregledLaboratorija);
         Scene scene = new Scene(hb, 800, 600);
         setScene(scene);
         buttonPregled.setOnAction(e -> {
             PregledProzor pregled = new PregledProzor();
             pregled.show();
         });
-
+        buttonPregledLaboratorija.setOnAction(e -> {
+           LaboratorijeProzor laboratorijeProzor = new LaboratorijeProzor();
+           laboratorijeProzor.show();
+        });
     }
 }
