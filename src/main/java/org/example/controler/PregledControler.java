@@ -7,7 +7,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Toggle;
 import org.example.Config;
 import org.example.model.Eksperiment;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

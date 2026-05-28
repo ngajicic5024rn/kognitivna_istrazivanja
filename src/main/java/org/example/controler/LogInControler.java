@@ -1,6 +1,5 @@
 package org.example.controler;
 
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
@@ -8,18 +7,13 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import org.example.Config;
 import org.example.UserFileService;
-import org.example.model.Eksperiment;
 import org.example.model.UlogovaniIstrazivac;
 import org.example.view.GlavniProzor;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LogInControler implements EventHandler<ActionEvent> {
 
@@ -60,12 +54,11 @@ public class LogInControler implements EventHandler<ActionEvent> {
                 return;
             }
             setSuccess("Dobrodošli, " + username.trim() + "! Uspešno ste se prijavili.");
-            if (runQuery(Config.getConnection(), username)){
+            if (runQueryLogIn(Config.getConnection(), username)){
                 GlavniProzor glavni = new GlavniProzor();
                 glavni.show();
 
             }
-
 
         } catch (IOException e) {
             setError("Greška pri čitanju korisničkih podataka!");
@@ -82,7 +75,7 @@ public class LogInControler implements EventHandler<ActionEvent> {
         lblError.setText(msg);
     }
 
-    private boolean runQuery(Connection connection, String username ) {
+    private boolean runQueryLogIn(Connection connection, String username ) {
         String query = "select * from istrazivac where username = ?";
 
         try {
@@ -99,7 +92,6 @@ public class LogInControler implements EventHandler<ActionEvent> {
                 String naucnoZvanje = resultSet.getString("naucno_zvanje");
                 String oblastSpec = resultSet.getString("oblast_spec");
 
-
                 GlavniProzor.ulogovaniIstrazivac = new UlogovaniIstrazivac(ime_i_prezime, username, email, institucija, naucnoZvanje, oblastSpec, id);
                 return true;
             }
@@ -109,6 +101,5 @@ public class LogInControler implements EventHandler<ActionEvent> {
         }
         return false;
     }
-
 
 }

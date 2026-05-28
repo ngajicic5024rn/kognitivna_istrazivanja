@@ -7,8 +7,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import org.example.Config;
 import org.example.model.Dizajner;
-import org.example.model.Laboratorija;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

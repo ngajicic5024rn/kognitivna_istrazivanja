@@ -71,12 +71,8 @@ public class Register extends Stage {
            this.close();
         });
 
-
         Scene scene = new Scene(root,800,600);
         setScene(scene);
 
-
-
     }
-
 }

@@ -12,7 +12,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.controler.LogInControler;
 
-
 public class LogIn extends Stage {
 
     private Label lbUsername = new Label("Korisničko ime:");

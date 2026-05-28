@@ -1,6 +1,5 @@
 package org.example.controler;
 
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
@@ -10,7 +9,6 @@ import org.example.Config;
 import org.example.UserFileService;
 import org.example.model.UlogovaniIstrazivac;
 import org.example.view.GlavniProzor;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,9 +26,6 @@ public class AddUserControler implements EventHandler<ActionEvent> {
     private TextField tfInstitucija;
     private TextField tfNaucnoZvanje ;
     private TextField tfOblastSpecifikacije;
-
-
-
 
     public AddUserControler(TextField tfIme, PasswordField tfPassword, TextField tfImeiPrezime, TextField tfEmail, TextField tfInstitucija, TextField tfNaucnoZvanje, TextField tfOblastSpecifikacije, Label lblStatus) {
         this.tfIme = tfIme;
@@ -59,7 +54,6 @@ public class AddUserControler implements EventHandler<ActionEvent> {
             return;
         }
 
-
         try {
             if (UserFileService.userExists(username.trim())) {
                 setError("Greška: Korisnik '" + username.trim() + "' već postoji!");
@@ -67,7 +61,7 @@ public class AddUserControler implements EventHandler<ActionEvent> {
             }
             UserFileService.saveUser(username.trim(), password);
             setSuccess("Korisnik '" + username.trim() + "' je uspešno registrovan!");
-            boolean uspesno = this.runQuery(
+            boolean uspesno = this.runQueryUpisUBazu(
                     Config.getConnection(),
                     tfIme.getText(),
                     tfImeiPrezime.getText(),
@@ -99,7 +93,7 @@ public class AddUserControler implements EventHandler<ActionEvent> {
         lblStatus.setText(msg);
     }
 
-    private boolean runQuery(
+    private boolean runQueryUpisUBazu(
             Connection connection,
             String username,
             String imeIPrezime,
@@ -108,7 +102,6 @@ public class AddUserControler implements EventHandler<ActionEvent> {
             String naucnoZvanje,
             String oblastSpecifikacije
     ) {
-
         String query =
                 "INSERT INTO istrazivac \n" +
                         "(username, ime_i_prezime, email, institucija, naucno_zvanje, oblast_spec) \n" +
@@ -145,7 +138,6 @@ public class AddUserControler implements EventHandler<ActionEvent> {
                 return resultSet.getInt("id");
             }
             return 0;
-
 
         } catch (SQLException e) {
             return 0;

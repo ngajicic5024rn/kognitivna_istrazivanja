@@ -6,9 +6,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import org.example.Config;
-import org.example.model.IzvodjenjaPoIstrazivacu;
 import org.example.model.Laboratorija;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -64,7 +62,6 @@ public class LaboratorijeProzor extends Stage {
                 Laboratorija laboratorija = new Laboratorija(naziv,brojResurs,opisLaboratorije);
 
                 tvLaboratorija.getItems().add(laboratorija);
-
 
             }
 

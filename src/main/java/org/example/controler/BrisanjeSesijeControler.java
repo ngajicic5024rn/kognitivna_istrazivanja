@@ -5,9 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.TableView;
 import org.example.Config;
 import org.example.model.Eksperiment;
-import org.example.model.UlogovaniIstrazivac;
 import org.example.view.GlavniProzor;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,15 +38,12 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
         }
     }
 
-
     private boolean runQueryIsIzvodjac(Connection connection, Integer id_izvodjenje, Integer id_istrazivac ) {
-        String query = "SELECT *\n" +
-                "FROM ucesce_izvodjaca ui\n" +
+        String query = "SELECT * FROM ucesce_izvodjaca ui\n" +
                 "JOIN izvodjac i\n" +
                 "ON ui.id_izvodjac = i.id\n" +
                 "WHERE ui.id_izvodjenje = ?\n" +
                 "AND i.id_istrazivaca = ?;";
-
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -60,14 +55,12 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
             }
             return false;
 
-
         } catch (SQLException e) {
             return false;
         }
     }
     private boolean runQueryIsDizajner(Connection connection, Integer id_izvodjenje, Integer id_istrazivac ) {
-        String query = "SELECT *\n" +
-                "FROM izvodjenje i\n" +
+        String query = "SELECT * FROM izvodjenje i\n" +
                 "JOIN diz_eks de\n" +
                 "ON i.id_eksperiment = de.eksperiment_id\n" +
                 "JOIN dizajner d\n" +
@@ -85,14 +78,12 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
             }
             return false;
 
-
         } catch (SQLException e) {
             return false;
         }
     }
 
     private boolean runQueryObrisiSesiju(Connection connection, int idIzvodjenja) {
-
         try {
 
             String selectQuery =
@@ -150,7 +141,6 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
     }
 
     private void kreirajProceduru(Connection connection) {
-
         String query =
                 "CREATE PROCEDURE obrisi_sesiju_po_izvodjenju(IN p_id_izvodjenja INT) \n" +
                         "BEGIN DECLARE v_id_sesija INT; \n" +
@@ -163,7 +153,6 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
                         "END";
 
         try {
-
             PreparedStatement preparedStatement =
                     connection.prepareStatement(query);
 

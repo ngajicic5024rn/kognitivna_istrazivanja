@@ -1,13 +1,11 @@
 package org.example.controler;
 
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import org.example.Config;
 import org.example.model.Eksperiment;
 import org.example.model.Status;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -27,14 +25,14 @@ public class IzmenaStatusaControler  implements EventHandler<ActionEvent> {
        Status izabraniStatus = statusaComboBox.getSelectionModel().getSelectedItem();
        Eksperiment izabraniEksperiment = tvEksperimenti.getSelectionModel().getSelectedItem();
 
-        if(this.runQuery(Config.getConnection(),izabraniStatus.getId(), izabraniEksperiment.getIdEksperimenta() )){
+        if(this.runQueryIzmeniStatusIzvodjenja(Config.getConnection(),izabraniStatus.getId(), izabraniEksperiment.getIdEksperimenta() )){
             izabraniEksperiment.setStatus(izabraniStatus.getStatus());
             tvEksperimenti.refresh();
         }
 
     }
 
-    private boolean runQuery(Connection connection, Integer id_status, Integer id) {
+    private boolean runQueryIzmeniStatusIzvodjenja(Connection connection, Integer id_status, Integer id) {
         String query = "UPDATE  izvodjenje set id_status = ? where id_izvodjenja = ?";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);

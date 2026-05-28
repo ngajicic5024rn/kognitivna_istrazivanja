@@ -6,8 +6,6 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
-
-
 public class MainView extends Stage {
     Button btnLogIn = new Button("Log In");
     Button btnSignUp = new Button("Sign Up");

@@ -14,7 +14,6 @@ import org.example.controler.IzmenaStatusaControler;
 import org.example.controler.PregledControler;
 import org.example.model.Eksperiment;
 import org.example.model.Status;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -195,8 +194,7 @@ public class PregledProzor extends Stage {
         return false;
     }
 
-    private int brojIzvodjenjaEksperimenta(Connection connection,
-                                           int idEksperimenta) {
+    private int brojIzvodjenjaEksperimenta(Connection connection, int idEksperimenta) {
 
         String query =
                 "SELECT broj_izvodjenja_eksperimenta(?) AS broj";

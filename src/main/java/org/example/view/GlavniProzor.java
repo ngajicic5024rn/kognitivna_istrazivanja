@@ -13,9 +13,7 @@ public class GlavniProzor extends Stage {
     Button buttonPregledLaboratorija = new Button("Pregled Laboratorija");
     Button buttonPregledDizajnera = new Button("Pregled Dizajnera");
 
-
     public static UlogovaniIstrazivac ulogovaniIstrazivac;
-
 
     public GlavniProzor() {
         HBox hb = new HBox(10);
