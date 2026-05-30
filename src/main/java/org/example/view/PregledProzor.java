@@ -108,6 +108,12 @@ public class PregledProzor extends Stage {
 
     private void kreirajFunkciju(Connection connection) {
 
+        /*
+            Čemu služi: Prima ID eksperimenta i vraća ukupan broj njegovih izvođenja kao INT vrednost.
+            Zašto se uvodi: Omogućava višestruku upotrebu logike brojanja unutar SQL upita i u drugim funkcijama, bez ponavljanja koda.
+            Sadrži: DECLARE, SELECT COUNT(*) INTO, RETURN i DETERMINISTIC
+         */
+
         String query =
                 "CREATE FUNCTION broj_izvodjenja_eksperimenta(p_id_eksperiment INT) " +
                         "RETURNS INT " +
@@ -135,6 +141,12 @@ public class PregledProzor extends Stage {
 
     private void kreirajFunkcijuZaProveru(Connection connection) {
         kreirajFunkciju(Config.getConnection());
+
+        /*
+        Čemu služi: Proverava da li odabrani eksperiment ima barem jedno izvođenje i vraća TRUE/FALSE.
+        Zašto se uvodi: Koristi već postojeću funkciju bez ponavljanja logike
+        Sadrži: DECLARE, SET, poziv druge funkcije, IF/ELSE, RETURNS BOOLEAN
+         */
 
         String query =
                 "CREATE FUNCTION test_broj_izvodjenja_eksperimenta(p_id_eksperiment INT)\n" +

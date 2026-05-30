@@ -30,15 +30,15 @@ public class PregledControler implements ChangeListener<Toggle> {
     @Override
     public void changed(ObservableValue<? extends Toggle> observableValue, Toggle oldValue, Toggle newValue) {
         if (newValue == rbPlanirani) {
-            runQuery(Config.getConnection(), "planirano");
+            runQueryUcitajEksperimentePoZadatomStatusu(Config.getConnection(), "planirano");
         }
         if (newValue == rbZavrseni) {
-            runQuery(Config.getConnection(), "zavrseno");
+            runQueryUcitajEksperimentePoZadatomStatusu(Config.getConnection(), "zavrseno");
         }
 
     }
 
-    private void runQuery(Connection connection, String status ) {
+    private void runQueryUcitajEksperimentePoZadatomStatusu(Connection connection, String status ) {
         String query = "select e.naziv as eksperiment, e.id, e.tip, i.datum, l.naziv as laboratorija,i.id_izvodjenja,\n" +
                 "s.naziv as status\n" +
                 "from izvodjenje i\n" +

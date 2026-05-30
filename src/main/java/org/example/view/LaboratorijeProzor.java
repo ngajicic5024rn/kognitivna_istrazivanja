@@ -35,6 +35,12 @@ public class LaboratorijeProzor extends Stage {
 
     private void proveriFunkciju(Connection connection) {
 
+        /*
+            Čemu služi: Prikazuje sve laboratorije koje imaju barem jedan resurs, sa brojem resursa i opisom lokacije, sortirano od laboratorije sa najviše resursa.
+            Zašto se uvodi: Omogućava brz pregled opremljenosti laboratorija radi planiranja izvođenja eksperimenata prema dostupnim resursima.
+            Sadrži: JOIN, COUNT, GROUP BY, ORDER BY DESC
+        */
+
         String query =
                 "SELECT \n" +
                         "    l.naziv,\n" +

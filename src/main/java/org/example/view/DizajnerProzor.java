@@ -34,6 +34,12 @@ public class DizajnerProzor extends Stage {
 
     private void prikaziDizajnere(Connection connection) {
 
+        /*
+            Čemu služi: Prikazuje sve dizajnere eksperimenata sa teorijskom orijentacijom i godinama iskustva, sortirano od najiskusnijeg ka najmanje iskusnom.
+            Zašto se uvodi: Daje pregled kadrovskog sastava dizajnera radi lakšeg raspoređivanja na projekte prema stručnosti i teorijskom pristupu.
+            Sadrži: 2 JOIN-a, ORDER BY DESC
+        */
+
         String query =
                 "SELECT i.ime_i_prezime, t.naziv AS teorija, d.iskustvo_god FROM dizajner d JOIN istrazivac i ON d.id = i.id JOIN teorija t ON d.teorija_id = t.id ORDER BY d.iskustvo_god DESC";
 

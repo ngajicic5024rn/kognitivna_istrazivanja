@@ -141,6 +141,12 @@ public class BrisanjeSesijeControler implements EventHandler<ActionEvent> {
     }
 
     private void kreirajProceduru(Connection connection) {
+        /*
+            Čemu služi: Briše sesiju vezanu za odabrano izvođenje, zajedno sa učešćima izvođača i samim izvođenjem.
+            Zašto se uvodi: Enkapsulira logiku brisanja u jednom mestu i garantuje ispravan redosled
+            operacija uz zaštitu transakcijom — ako dođe do greške, ništa se ne briše.
+            Sadrži: START TRANSACTION, 3  DELETE i COMMIT
+         */
         String query =
                 "CREATE PROCEDURE obrisi_sesiju_po_izvodjenju(IN p_id_izvodjenja INT) \n" +
                         "BEGIN DECLARE v_id_sesija INT; \n" +

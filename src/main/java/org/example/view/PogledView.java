@@ -65,6 +65,13 @@ public class PogledView extends Stage {
 
     private void kreirajView(Connection connection) {
 
+        /*
+            Čemu služi: Prikazuje koliko puta je svaki istraživač učestvovao u izvođenjima eksperimenata.
+            Zašto ga uvodimo: Omogućava brz pregled angažovanosti istraživača bez pisanja složenog upitasvaki put.
+            Koristi se za praćenje aktivnosti i opterećenosti istraživača.
+            Sadrži: 2 JOIN-a, GROUP BY, HAVING
+        */
+
         String query =
                 "CREATE OR REPLACE VIEW broj_izvodjenja_po_istrazivacu AS \n" +
                         "SELECT \n" +

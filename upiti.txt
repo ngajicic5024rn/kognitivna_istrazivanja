@@ -11,3 +11,234 @@ JOIN ucesce_izvodjaca ui
 ON iz.id = ui.id_izvodjac
 GROUP BY i.id, i.ime_i_prezime
 HAVING COUNT(ui.id_izvodjenje) >= 1;
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-- ============================================
+-- Istraživanje indeksa
+-- ============================================
+USE kongnitivna_istrazivanja;
+
+-- Indeks 1: IX_eksperiment_tip
+-- Tabela: eksperiment
+-- BTREE struktura, jedina opcija u MySQL-u (BITMAP ne postoji tu).
+-- Nije klasterovan jer primarni ključ već zauzima to mesto u InnoDB-u.
+-- Koristim ovaj indeks da ubrzam filtriranje po tipu eksperimenta,
+-- recimo WHERE tip = 'memorija' i slično.
+CREATE INDEX IX_eksperiment_tip ON eksperiment(tip);
+
+
+-- Indeks 2: IX_eksperiment_naziv
+-- Tabela: eksperiment
+-- Opet BTREE, dobro radi sa stringovima, brza pretraga po abecedi i tačnom nazivu.
+-- Nije klasterovan, iz istog razloga kao gore.
+-- Ubrzava pretragu kad tražimo konkretan test po nazivu,
+-- npr. WHERE naziv = 'Stroop Color-Word Test'.
+CREATE INDEX IX_eksperiment_naziv ON eksperiment(naziv);
+
+
+-- Indeks 3: IX_dizajner_obj_radovi
+-- Tabela: dizajner
+-- BTREE, dobro za pretragu po prefiksu stringa.
+-- Nije klasterovan.
+-- Koristan kad radimo pretragu po objavljenim radovima,
+-- tipa WHERE obj_radovi LIKE 'Lazović%'.
+CREATE INDEX IX_dizajner_obj_radovi ON dizajner(obj_radovi);
+
+
+-- Indeks 4: IX_dizajner_iskustvo_god
+-- Tabela: dizajner
+-- BTREE, idealan za opsege vrednosti (veće od, manje od itd).
+-- Nije klasterovan.
+-- Ubrzava kad filtriramo dizajnere po godinama iskustva,
+-- npr. WHERE iskustvo_god > 5.
+CREATE INDEX IX_dizajner_iskustvo_god ON dizajner(iskustvo_god);
+
+
+-- Indeks 5: IX_sesija_datum_vreme_pocetka
+-- Tabela: sesija
+-- Kompozitni BTREE indeks, najbolji izbor za vremenske opsege.
+-- Nije klasterovan.
+-- Pomaže kad istraživači traže sesije u nekom vremenskom periodu,
+-- npr. WHERE datum = '2026-01-01' AND vreme_pocetka > '10:00:00',
+-- ali radi i kad se filtrira samo po datumu.
+CREATE INDEX IX_sesija_datum_vreme_pocetka ON sesija(datum, vreme_pocetka);
+
+
+-- Indeks 6: UX_istrazivac_email
+-- Tabela: istrazivac
+-- Jedinstveni indeks, BTREE kao i uvek u InnoDB-u.
+-- Nije klasterovan.
+-- Ubrzava pretragu po email-u i osigurava da ne mogu dva istraživača
+-- imati isti email.
+CREATE UNIQUE INDEX UX_istrazivac_email ON istrazivac(email);
+
+
+-- Indeks 7: IX_resurs_modalitet
+-- Tabela: resurs
+-- BTREE, standardno za string kolone.
+-- Nije klasterovan.
+-- Koristan za filtriranje resursa po modalitetu,
+-- npr. WHERE modalitet = 'vizuelni' ili WHERE modalitet = 'auditivni'.
+CREATE INDEX IX_resurs_modalitet ON resurs(modalitet);
+
+
+-- Indeks 8: IX_izvodjenje_datum_status
+-- Tabela: izvodjenje
+-- Kompozitni BTREE indeks za datum i status.
+-- Nije klasterovan.
+-- Ubrzava upite koji kombinuju datum i status,
+-- npr. WHERE datum BETWEEN '2026-01-01' AND '2026-06-01' AND id_status = 3.
+CREATE INDEX IX_izvodjenje_datum_status ON izvodjenje(datum, id_status);
+
+
+-- Indeks 9: IX_izvodjenje_eksperiment
+-- Tabela: izvodjenje
+-- BTREE, standardno za strani ključ tipa INT.
+-- Nije klasterovan.
+-- Ubrzava JOIN sa tabelom eksperiment i filtriranje po određenom eksperimentu,
+-- npr. WHERE id_eksperiment = 5.
+CREATE INDEX IX_izvodjenje_eksperiment ON izvodjenje(id_eksperiment);
+
+
+-- Indeks 10: IX_laboratorija_tip
+-- Tabela: laboratorija
+-- BTREE, radi dobro za string vrednosti.
+-- Nije klasterovan.
+-- Ubrzava filtriranje po tipu laboratorije,
+-- npr. WHERE tip = 'EEG' ili WHERE tip IN ('EEG', 'VR').
+CREATE INDEX IX_laboratorija_tip ON laboratorija(tip);
+
+
+-- Indeks 11: IX_izvodjenje_pristanak  -- teorijski primer za BITMAP
+-- Tabela: izvodjenje
+-- Ovo je teorijski primer, MySQL ne podržava BITMAP indekse.
+-- Ali kolona informisani_pristanak ima samo 3 vrednosti (0, 1, NULL),
+-- što je klasičan slučaj gde bi BITMAP bio bolji izbor od BTREE-a.
+-- BITMAP indeksi se ionako ne mogu klasterovati jer ne čuvaju redosled podataka.
+-- Bio bi koristan za upite tipa:
+--   SELECT COUNT(*) FROM izvodjenje WHERE informisani_pristanak = 1
+-- ili kombinovane uslove poput WHERE informisani_pristanak = 1 AND id_status = 3.
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+        /*
+            Čemu služi: Briše sesiju vezanu za odabrano izvođenje, zajedno sa učešćima izvođača i samim izvođenjem.
+            Zašto se uvodi: Enkapsulira logiku brisanja u jednom mestu i garantuje ispravan redosled
+            operacija uz zaštitu transakcijom — ako dođe do greške, ništa se ne briše.
+            Sadrži: START TRANSACTION, 3  DELETE i COMMIT
+         */
+        String query =
+                "CREATE PROCEDURE obrisi_sesiju_po_izvodjenju(IN p_id_izvodjenja INT) \n" +
+                        "BEGIN DECLARE v_id_sesija INT; \n" +
+                        "START TRANSACTION; \n" +
+                        "SELECT id_sesija INTO v_id_sesija FROM izvodjenje WHERE id_izvodjenja = p_id_izvodjenja; \n" +
+                        "DELETE FROM ucesce_izvodjaca WHERE id_izvodjenje = p_id_izvodjenja; \n" +
+                        "DELETE FROM izvodjenje WHERE id_izvodjenja = p_id_izvodjenja; \n" +
+                        "DELETE FROM sesija WHERE id = v_id_sesija; \n" +
+                        "COMMIT; \n" +
+                        "END";
+
+
+        /*
+           Čemu služi: Prikazuje sve dizajnere eksperimenata sa teorijskom orijentacijom i godinama iskustva, sortirano od najiskusnijeg ka najmanje iskusnom.
+           Zašto se uvodi: Daje pregled kadrovskog sastava dizajnera radi lakšeg raspoređivanja na projekte prema stručnosti i teorijskom pristupu.
+           Sadrži: 2 JOIN-a, ORDER BY DESC
+       */
+
+       String query =
+               "SELECT i.ime_i_prezime, t.naziv AS teorija, d.iskustvo_god FROM dizajner d JOIN istrazivac i ON d.id = i.id JOIN teorija t ON d.teorija_id = t.id ORDER BY d.iskustvo_god DESC";
+
+
+
+     private void proveriFunkciju(Connection connection) {
+
+        /*
+            Čemu služi: Prikazuje sve laboratorije koje imaju barem jedan resurs, sa brojem resursa i opisom lokacije, sortirano od laboratorije sa najviše resursa.
+            Zašto se uvodi: Omogućava brz pregled opremljenosti laboratorija radi planiranja izvođenja eksperimenata prema dostupnim resursima.
+            Sadrži: JOIN, COUNT, GROUP BY, ORDER BY DESC
+        */
+
+        String query =
+                "SELECT \n" +
+                        "    l.naziv,\n" +
+                        "l.opis_lok,\n" +
+                        "    COUNT(lr.resurs_id) AS broj_resursa\n" +
+                        "FROM laboratorija l\n" +
+                        "JOIN laboratorija_resurs lr\n" +
+                        "ON l.id = lr.laboratorija_id\n" +
+                        "GROUP BY l.id, l.naziv\n" +
+                        "ORDER BY broj_resursa DESC;";
+
+
+
+     private void kreirajView(Connection connection) {
+
+         /*
+             Čemu služi: Prikazuje koliko puta je svaki istraživač učestvovao u izvođenjima eksperimenata.
+             Zašto ga uvodimo: Omogućava brz pregled angažovanosti istraživača bez pisanja složenog upitasvaki put.
+             Koristi se za praćenje aktivnosti i opterećenosti istraživača.
+             Sadrži: 2 JOIN-a, GROUP BY, HAVING
+         */
+
+         String query =
+                 "CREATE OR REPLACE VIEW broj_izvodjenja_po_istrazivacu AS \n" +
+                         "SELECT \n" +
+                         "i.ime_i_prezime, \n" +
+                         "COUNT(ui.id_izvodjenje) AS broj_izvodjenja \n" +
+                         "FROM istrazivac i \n" +
+                         "JOIN izvodjac iz ON i.id = iz.id_istrazivaca \n" +
+                         "JOIN ucesce_izvodjaca ui ON iz.id = ui.id_izvodjac \n" +
+                         "GROUP BY i.id, i.ime_i_prezime \n" +
+                         "HAVING COUNT(ui.id_izvodjenje) >= 2";
+
+
+
+      private void kreirajFunkciju(Connection connection) {
+
+         /*
+             Čemu služi: Prima ID eksperimenta i vraća ukupan broj njegovih izvođenja kao INT vrednost.
+             Zašto se uvodi: Omogućava višestruku upotrebu logike brojanja unutar SQL upita i u drugim funkcijama, bez ponavljanja koda.
+             Sadrži: DECLARE, SELECT COUNT(*) INTO, RETURN i DETERMINISTIC
+          */
+
+         String query =
+                 "CREATE FUNCTION broj_izvodjenja_eksperimenta(p_id_eksperiment INT) " +
+                         "RETURNS INT " +
+                         "DETERMINISTIC " +
+                         "BEGIN " +
+                         "DECLARE broj INT; " +
+                         "SELECT COUNT(*) INTO broj " +
+                         "FROM izvodjenje " +
+                         "WHERE id_eksperiment = p_id_eksperiment; " +
+                         "RETURN broj; " +
+                         "END";
+
+
+ private void kreirajFunkcijuZaProveru(Connection connection) {
+        kreirajFunkciju(Config.getConnection());
+
+        /*
+        Čemu služi: Proverava da li odabrani eksperiment ima barem jedno izvođenje i vraća TRUE/FALSE.
+        Zašto se uvodi: Koristi već postojeću funkciju bez ponavljanja logike
+        Sadrži: DECLARE, SET, poziv druge funkcije, IF/ELSE, RETURNS BOOLEAN
+         */
+
+        String query =
+                "CREATE FUNCTION test_broj_izvodjenja_eksperimenta(p_id_eksperiment INT)\n" +
+                        "RETURNS BOOLEAN\n" +
+                        "DETERMINISTIC\n" +
+                        "BEGIN\n" +
+                        "    DECLARE broj INT;\n" +
+                        "\n" +
+                        "    SET broj = broj_izvodjenja_eksperimenta(p_id_eksperiment);\n" +
+                        "\n" +
+                        "    IF broj >= 1 THEN\n" +
+                        "        RETURN TRUE;\n" +
+                        "    ELSE\n" +
+                        "        RETURN FALSE;\n" +
+                        "    END IF;\n" +
+                        "END";
